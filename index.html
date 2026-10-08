@@ -1,0 +1,574 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>大稲埕レトロ・スタンプラリー</title>
+    <style>
+        :root {
+            --bg-color: #211c19;
+            --card-bg: #322622;
+            --text-color: #e6d7c3;
+            --accent-gold: #cba052;
+            --accent-red: #8b2b2b;
+            --border-color: #594839;
+        }
+
+        * {
+            box-sizing: border-box;
+        }
+
+        body {
+            margin: 0;
+            padding: 0;
+            font-family: 'Noto Serif JP', 'Yu Mincho', 'MS Mincho', serif;
+            background-color: var(--bg-color);
+            color: var(--text-color);
+            -webkit-tap-highlight-color: transparent;
+        }
+
+        header {
+            background-color: var(--accent-red);
+            padding: 15px 20px;
+            text-align: center;
+            border-bottom: 3px solid var(--accent-gold);
+            position: sticky;
+            top: 0;
+            z-index: 100;
+            box-shadow: 0 4px 6px rgba(0,0,0,0.5);
+        }
+
+        h1 {
+            margin: 0;
+            font-size: 1.15rem;
+            color: var(--accent-gold);
+            letter-spacing: 2px;
+            text-shadow: 1px 1px 2px rgba(0,0,0,0.8);
+        }
+
+        .progress-container {
+            margin-top: 10px;
+            background: #1a1513;
+            border: 1px solid var(--accent-gold);
+            border-radius: 10px;
+            height: 14px;
+            overflow: hidden;
+            position: relative;
+        }
+
+        .progress-bar {
+            height: 100%;
+            background: linear-gradient(90deg, #cba052, #e5c378);
+            width: 0%;
+            transition: width 0.5s ease-in-out;
+        }
+
+        .progress-text {
+            font-size: 0.8rem;
+            margin-top: 5px;
+            color: #fff;
+        }
+
+        .container {
+            padding: 15px;
+            max-width: 600px;
+            margin: 0 auto;
+            padding-bottom: 60px;
+        }
+
+        .spot-card {
+            background-color: var(--card-bg);
+            border: 1px solid var(--border-color);
+            border-radius: 8px;
+            padding: 15px;
+            margin-bottom: 15px;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            box-shadow: 0 4px 6px rgba(0,0,0,0.3);
+        }
+
+        .spot-info {
+            flex: 1;
+            padding-right: 10px;
+        }
+
+        .spot-title {
+            font-size: 1.05rem;
+            color: var(--accent-gold);
+            margin: 0 0 5px 0;
+            border-bottom: 1px dashed var(--border-color);
+            padding-bottom: 4px;
+        }
+
+        .spot-desc {
+            font-size: 0.82rem;
+            line-height: 1.4;
+            color: #c4b5a3;
+            margin-bottom: 10px;
+        }
+
+        .btn-challenge {
+            background-color: var(--accent-red);
+            color: var(--accent-gold);
+            border: 1px solid var(--accent-gold);
+            padding: 6px 12px;
+            border-radius: 4px;
+            font-size: 0.8rem;
+            cursor: pointer;
+            font-family: inherit;
+        }
+
+        .stamp-area {
+            width: 56px;
+            height: 56px;
+            border: 2px dashed var(--border-color);
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            flex-shrink: 0;
+        }
+
+        .stamp-mark {
+            display: none;
+            color: var(--accent-red);
+            font-size: 1.5rem;
+            font-weight: bold;
+            transform: rotate(-12deg);
+            border: 3px solid var(--accent-red);
+            border-radius: 50%;
+            width: 42px;
+            height: 42px;
+            text-align: center;
+            line-height: 38px;
+            background: rgba(139, 43, 43, 0.1);
+        }
+
+        .completed .stamp-mark {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+        
+        .completed .btn-challenge {
+            display: none;
+        }
+
+        /* Modal 視窗 */
+        .modal {
+            display: none;
+            position: fixed;
+            top: 0; left: 0; width: 100%; height: 100%;
+            background: rgba(0, 0, 0, 0.85);
+            z-index: 200;
+            align-items: center;
+            justify-content: center;
+            padding: 20px;
+        }
+
+        .modal-content {
+            background-color: var(--card-bg);
+            border: 2px solid var(--accent-gold);
+            padding: 20px;
+            width: 100%;
+            max-width: 380px;
+            border-radius: 8px;
+            text-align: center;
+            box-shadow: 0 0 20px rgba(203, 160, 82, 0.4);
+        }
+
+        .modal-title {
+            color: var(--accent-gold);
+            margin-top: 0;
+            font-size: 1.1rem;
+            border-bottom: 1px solid var(--accent-gold);
+            padding-bottom: 8px;
+        }
+
+        .question-text {
+            font-size: 0.95rem;
+            margin: 15px 0;
+            line-height: 1.4;
+        }
+
+        .option-btn {
+            display: block;
+            width: 100%;
+            background: rgba(0,0,0,0.2);
+            border: 1px solid var(--border-color);
+            color: var(--text-color);
+            padding: 10px;
+            margin-bottom: 8px;
+            border-radius: 4px;
+            font-family: inherit;
+            font-size: 0.88rem;
+            cursor: pointer;
+            text-align: left;
+        }
+
+        .option-btn:active {
+            background-color: var(--border-color);
+        }
+
+        .feedback-text {
+            margin-top: 10px;
+            font-weight: bold;
+            font-size: 0.9rem;
+            min-height: 20px;
+        }
+
+        .close-btn {
+            margin-top: 15px;
+            background: none;
+            border: none;
+            color: #aaa;
+            text-decoration: underline;
+            cursor: pointer;
+            font-family: inherit;
+            font-size: 0.85rem;
+        }
+
+        /* 煙火動畫全屏 */
+        #fireworks-container {
+            display: none;
+            position: fixed;
+            top: 0; left: 0; width: 100%; height: 100%;
+            background: rgba(0, 0, 0, 0.9);
+            z-index: 300;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+        }
+
+        canvas {
+            position: absolute;
+            top: 0; left: 0; width: 100%; height: 100%;
+            z-index: 301;
+            pointer-events: none;
+        }
+
+        .congrats-msg {
+            position: relative;
+            z-index: 302;
+            color: var(--accent-gold);
+            font-size: 1.6rem;
+            text-align: center;
+            text-shadow: 0 0 10px rgba(255,255,255,0.4);
+            background: rgba(33, 28, 25, 0.9);
+            padding: 25px;
+            border: 2px solid var(--accent-gold);
+            border-radius: 10px;
+            width: 85%;
+            max-width: 380px;
+        }
+
+        .congrats-sub {
+            font-size: 0.85rem;
+            color: #fff;
+            margin-top: 10px;
+            line-height: 1.5;
+        }
+
+        .close-fireworks {
+            margin-top: 20px;
+            padding: 8px 20px;
+            background: var(--accent-red);
+            color: var(--accent-gold);
+            border: 1px solid var(--accent-gold);
+            border-radius: 4px;
+            cursor: pointer;
+            font-family: inherit;
+            font-size: 0.9rem;
+        }
+    </style>
+</head>
+<body>
+
+<header>
+    <h1>大稲埕レトロ・スタンプラリー</h1>
+    <div class="progress-container">
+        <div class="progress-bar" id="progress-bar"></div>
+    </div>
+    <div class="progress-text">達成度: <span id="progress-text">0</span> / 10</div>
+</header>
+
+<div class="container" id="spots-container">
+    <!-- 動態生成 10 個景點 -->
+</div>
+
+<!-- 答題 Modal -->
+<div class="modal" id="quiz-modal">
+    <div class="modal-content">
+        <h2 class="modal-title" id="modal-title">スポット名</h2>
+        <p class="question-text" id="question-text">問題文がここに入ります</p>
+        <div id="options-container"></div>
+        <div class="feedback-text" id="feedback-text"></div>
+        <button class="close-btn" onclick="closeModal()">閉じる</button>
+    </div>
+</div>
+
+<!-- 煙火動畫容器 -->
+<div id="fireworks-container">
+    <canvas id="fw-canvas"></canvas>
+    <div class="congrats-msg">
+        🎉 満願成就！ 🎉<br>大稲埕制覇達成
+        <div class="congrats-sub">すべてのスタンプを集めました！大稲埕碼頭の美しい花火をお楽しみください。</div>
+        <button class="close-fireworks" onclick="closeFireworks()">閉じる</button>
+    </div>
+</div>
+
+<script>
+    const spotsData = [
+        {
+            id: 0,
+            name: "迪化街 (ディーホアジエ)",
+            desc: "乾物や漢方薬、布地などを扱う老舗が軒を連ねる大稲埕のメインストリート。",
+            question: "迪化街で主に売られているものはどれ？",
+            options: ["1. 最新の電化製品", "2. 漢方薬・乾物・布", "3. 高級スポーツカー"],
+            answer: 1
+        },
+        {
+            id: 1,
+            name: "台北霞海城隍廟",
+            desc: "縁結びの神様「月下老人」が祀られており、多くの人が良縁を求めて訪れます。",
+            question: "この廟に祀られている有名な縁結びの神様の名前は？",
+            options: ["1. 月下老人", "2. 関羽", "3. 媽祖"],
+            answer: 0
+        },
+        {
+            id: 2,
+            name: "大稲埕碼頭",
+            desc: "かつてはお茶の輸出で栄えた港。現在は夕日の名所やフェスの会場として人気です。",
+            question: "大稲埕碼頭がかつて世界に大量に輸出していたものは？",
+            options: ["1. コーヒー", "2. バナナ", "3. お茶"],
+            answer: 2
+        },
+        {
+            id: 3,
+            name: "屈臣氏大薬房",
+            desc: "日本統治時代に建てられた洋館。バロック様式の美しいファサードが特徴。",
+            question: "この建物の目を引く建築様式は何と呼ばれる？",
+            options: ["1. バロック様式", "2. ゴシック様式", "3. 純和風様式"],
+            answer: 0
+        },
+        {
+            id: 4,
+            name: "慈聖宮",
+            desc: "大稲埕の三大廟の一つ。廟の前には屋台が並び、地元の人々の台所となっています。",
+            question: "慈聖宮の前の広場でよく見られる光景は？",
+            options: ["1. 大規模なパレード", "2. ガジュマルの木の下で屋台の食事を楽しむ人々", "3. 最新映画の撮影"],
+            answer: 1
+        },
+        {
+            id: 5,
+            name: "永楽市場",
+            desc: "台湾最大級の布市場。客家花布などの伝統的な柄から現代的なデザインまで揃います。",
+            question: "永楽市場は主に何の市場として有名？",
+            options: ["1. 布・生地市場", "2. 魚市場", "3. 花市場"],
+            answer: 0
+        },
+        {
+            id: 6,
+            name: "新芳春茶行",
+            desc: "1930年代に建てられた大規模な茶商の建物。現在は茶業の歴史を展示する博物館。",
+            question: "新芳春茶行の現在の主な役割は？",
+            options: ["1. 最新の映画館", "2. 大型ショッピングモール", "3. 茶業の歴史博物館"],
+            answer: 2
+        },
+        {
+            id: 7,
+            name: "台湾新文化運動記念館",
+            desc: "旧台北北警察署の建物を活用。日本統治時代の社会・文化運動の歴史を学べます。",
+            question: "この建物はかつて何として使われていた？",
+            options: ["1. 警察署", "2. 郵便局", "3. 病院"],
+            answer: 0
+        },
+        {
+            id: 8,
+            name: "李春生記念教会",
+            desc: "大稲埕の発展に貢献した茶商・李春生を記念して建てられた、美しい赤レンガの教会。",
+            question: "李春生は何のビジネスで成功し「台湾茶業の父」と呼ばれた？",
+            options: ["1. 砂糖", "2. お茶", "3. 石炭"],
+            answer: 1
+        },
+        {
+            id: 9,
+            name: "台原アジア人形劇博物館",
+            desc: "台湾の伝統的な布袋戯をはじめ、アジアの人形劇の歴史と文化を紹介。",
+            question: "台湾の伝統的な指人形劇（手袋人形劇）の名称は？",
+            options: ["1. 歌仔戯", "2. 崑曲", "3. 布袋戯 (ポテヒ)"],
+            answer: 2
+        }
+    ];
+
+    let completedStamps = [];
+    let currentSpotId = null;
+
+    function init() {
+        const container = document.getElementById('spots-container');
+        container.innerHTML = '';
+        spotsData.forEach(spot => {
+            const card = document.createElement('div');
+            card.className = 'spot-card';
+            card.id = `spot-${spot.id}`;
+            card.innerHTML = `
+                <div class="spot-info">
+                    <h3 class="spot-title">${spot.name}</h3>
+                    <div class="spot-desc">${spot.desc}</div>
+                    <button class="btn-challenge" onclick="openQuiz(${spot.id})">クイズに挑戦</button>
+                </div>
+                <div class="stamp-area">
+                    <div class="stamp-mark">済</div>
+                </div>
+            `;
+            container.appendChild(card);
+        });
+    }
+
+    function openQuiz(id) {
+        currentSpotId = id;
+        const spot = spotsData[id];
+        document.getElementById('modal-title').innerText = spot.name;
+        document.getElementById('question-text').innerText = spot.question;
+        document.getElementById('feedback-text').innerText = '';
+        
+        const optionsContainer = document.getElementById('options-container');
+        optionsContainer.innerHTML = '';
+        
+        spot.options.forEach((opt, index) => {
+            const btn = document.createElement('button');
+            btn.className = 'option-btn';
+            btn.innerText = opt;
+            btn.onclick = () => checkAnswer(index);
+            optionsContainer.appendChild(btn);
+        });
+
+        document.getElementById('quiz-modal').style.display = 'flex';
+    }
+
+    function closeModal() {
+        document.getElementById('quiz-modal').style.display = 'none';
+        currentSpotId = null;
+    }
+
+    function checkAnswer(selectedIndex) {
+        const spot = spotsData[currentSpotId];
+        const feedback = document.getElementById('feedback-text');
+        
+        if (selectedIndex === spot.answer) {
+            feedback.style.color = '#76d7c4';
+            feedback.innerText = '正解です！スタンプを獲得しました。';
+            markCompleted(currentSpotId);
+            setTimeout(() => {
+                closeModal();
+            }, 1200);
+        } else {
+            feedback.style.color = '#f1948a';
+            feedback.innerText = '残念、不正解です。もう一度挑戦してください！';
+        }
+    }
+
+    function markCompleted(id) {
+        if (!completedStamps.includes(id)) {
+            completedStamps.push(id);
+            document.getElementById(`spot-${id}`).classList.add('completed');
+            
+            const progress = completedStamps.length;
+            document.getElementById('progress-text').innerText = progress;
+            document.getElementById('progress-bar').style.width = `${(progress / spotsData.length) * 100}%`;
+
+            if (progress === spotsData.length) {
+                setTimeout(showFireworks, 600);
+            }
+        }
+    }
+
+    // Canvas 煙火特效
+    const canvas = document.getElementById('fw-canvas');
+    const ctx = canvas.getContext('2d');
+    let particles = [];
+    let fireworksAnimId;
+
+    function resizeCanvas() {
+        canvas.width = window.innerWidth;
+        canvas.height = window.innerHeight;
+    }
+    window.addEventListener('resize', resizeCanvas);
+
+    class Particle {
+        constructor(x, y, color) {
+            this.x = x;
+            this.y = y;
+            this.color = color;
+            const angle = Math.random() * Math.PI * 2;
+            const speed = Math.random() * 5 + 2;
+            this.vx = Math.cos(angle) * speed;
+            this.vy = Math.sin(angle) * speed;
+            this.alpha = 1;
+            this.decay = Math.random() * 0.018 + 0.012;
+            this.gravity = 0.04;
+        }
+        update() {
+            this.vy += this.gravity;
+            this.x += this.vx;
+            this.y += this.vy;
+            this.alpha -= this.decay;
+        }
+        draw(ctx) {
+            ctx.save();
+            ctx.globalAlpha = this.alpha;
+            ctx.beginPath();
+            ctx.arc(this.x, this.y, 2.5, 0, Math.PI * 2);
+            ctx.fillStyle = this.color;
+            ctx.fill();
+            ctx.restore();
+        }
+    }
+
+    function createFirework(x, y) {
+        const colors = ['#cba052', '#8b2b2b', '#ffffff', '#ffcc00', '#ff6b6b', '#48c9b0'];
+        const color = colors[Math.floor(Math.random() * colors.length)];
+        for (let i = 0; i < 70; i++) {
+            particles.push(new Particle(x, y, color));
+        }
+    }
+
+    function animateFireworks() {
+        ctx.fillStyle = 'rgba(0, 0, 0, 0.2)';
+        ctx.fillRect(0, 0, canvas.width, canvas.height);
+
+        if (Math.random() < 0.06) {
+            createFirework(
+                Math.random() * canvas.width,
+                Math.random() * (canvas.height * 0.5)
+            );
+        }
+
+        for (let i = particles.length - 1; i >= 0; i--) {
+            particles[i].update();
+            particles[i].draw(ctx);
+            if (particles[i].alpha <= 0) {
+                particles.splice(i, 1);
+            }
+        }
+        fireworksAnimId = requestAnimationFrame(animateFireworks);
+    }
+
+    function showFireworks() {
+        document.getElementById('fireworks-container').style.display = 'flex';
+        resizeCanvas();
+        animateFireworks();
+    }
+
+    function closeFireworks() {
+        document.getElementById('fireworks-container').style.display = 'none';
+        cancelAnimationFrame(fireworksAnimId);
+        ctx.clearRect(0, 0, canvas.width, canvas.height);
+        particles = [];
+    }
+
+    init();
+</script>
+</body>
+</html>
